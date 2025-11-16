@@ -15,6 +15,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Colour</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
@@ -40,18 +44,66 @@
                 "theme": "light"
             },
             {
-                "id": "examle1",
+                "id": "example1",
                 "name": "Brand Blue",
                 "hex": "#0066cc",
-                "role": "accent",
+                "role": "CTA",
                 "description": "Primær aksentfarge",
                 "theme": "light"
             },
             {
-                "id": "examle2",
+                "id": "foreground",
+                "name": "Black",
+                "hex": "#000000",
+                "role": "text",
+                "description": "Primær tekstfarge",
+                "theme": "light"
+            },
+            {
+                "id": "background",
+                "name": "White",
+                "hex": "#ffffff",
+                "role": "background",
+                "description": "Hovedbakgrunn",
+                "theme": "light"
+            },
+            {
+                "id": "foreground",
+                "name": "Black",
+                "hex": "#000000",
+                "role": "text",
+                "description": "Primær tekstfarge",
+                "theme": "light"
+            },
+            {
+                "id": "background",
+                "name": "White",
+                "hex": "#ffffff",
+                "role": "background",
+                "description": "Hovedbakgrunn",
+                "theme": "light"
+            },
+            {
+                "id": "example1",
+                "name": "Brand Blue",
+                "hex": "#0066cc",
+                "role": "CTA",
+                "description": "Primær aksentfarge",
+                "theme": "light"
+            },
+            {
+                "id": "example1",
+                "name": "Brand Blue",
+                "hex": "#0066cc",
+                "role": "CTA",
+                "description": "Primær aksentfarge",
+                "theme": "light"
+            },
+            {
+                "id": "example2",
                 "name": "Dark Blue",
                 "hex": "#003366",
-                "role": "accent",
+                "role": "CTA",
                 "description": "Primær aksentfarge",
                 "theme": "light"
             }
@@ -86,7 +138,7 @@
         if (value <= 0.03928) {
             return value / 12.92
         }
-        return ((value + 0.055) / 1.055) ** 2.4
+        return ((value + 0.055) / 1.055) ** 2.4;
     }
 
     function contrastRatio(r1 = 0, g1 = 0, b1 = 0, r2 = 255, g2 = 255, b2 = 255) {
@@ -114,19 +166,18 @@
         else {
             contrastNum = (L1 + 0.05) / (L2 + 0.05);
         }
+        contrastNum = Math.round(contrastNum * 100) / 100;
         if (contrastNum < 3) {
-            return `Kontrast ${contrastNum}:1 og dekker ikke WCAG-standard`;
+            return `${contrastNum}:1<br>not compliant`;
         }
         else if (contrastNum < 4.5) {
-            return `Kontrast ${contrastNum}:1 som er AA for stor tekst`;
+            return `${contrastNum}:1<br>AA for large text`;
         }
         else if (contrastNum < 7) {
-            return `Kontrast ${contrastNum}:1 som er AA for tekst og AAA for stor tekst`;
+            return `${contrastNum}:1<br>AA text<br>AAA for large text`;
         }
-        else return `Kontrast ${contrastNum}:1 som er AAA`;
+        else return `${contrastNum}:1<br>AAA`;
     }
-
-    console.log(contrastRatio())
 
     const raw = document.getElementById("coloursList").textContent;
     const data = JSON.parse(raw);
@@ -135,25 +186,138 @@
 
     for (let i of data.colours) {
         const colourCard = document.createElement("div");
-        const parentColour = document.createElement("div");
-        parentColour.style.background = i["hex"];
-        parentColour.style.width = "100px";
-        parentColour.style.height = "100px";
+        colourCard.classList.add("colour-card");
+
+        const info = document.createElement("div");
+        info.classList.add("info");
+
+        const space = document.createElement("div");
+        space.classList.add("colour-space");
+
+        const description = document.createElement("div");
+        description.classList.add("description");
+        const descText = document.createElement("p");
+        descText.innerText = i["description"];
+        description.appendChild(descText);
+
+        const colour = document.createElement("div");
+        colour.classList.add("colour");
+        colour.style.background = i["hex"];
+
+        const test = document.createElement("div");
+        test.classList.add("test");
+
+        const name = document.createElement("p");
+        name.innerText = i["name"];
+        const theme = document.createElement("p");
+        theme.innerText = "Theme: " + i["theme"];
+        const role = document.createElement("p");
+        role.innerText = "Role: " + i["role"];
+        info.append(name, theme, role);
+
 
 
         const hex = document.createElement("p");
-        hex.innerText = i["hex"];
+        hex.innerText = "Hex: " + i["hex"];
         const { r, g, b } = hexToRGB(i["hex"]);
         const rgbColour = document.createElement("p");
-        rgbColour.innerText = `RGB = (${r}, ${g}, ${b})`;
+        rgbColour.innerText = `RGB(${r}, ${g}, ${b})`;
+        space.append(hex, rgbColour);
 
-        colourCard.append(hex, rgbColour)
-        //parentColour.appendChild(hex);
+        colourCard.append(info, space, description, colour, test);
         body.appendChild(colourCard);
-        //for (let i of data.colours){
+        for (let j of data.colours) {
+            if (i["hex"] != j["hex"]) {
+                const testCard = document.createElement("div");
+                testCard.classList.add("test-card");
 
-        //}
+                const testCol = document.createElement("div");
+                testCol.classList.add("testCol");
+                testCol.style.background = j["hex"];
+
+
+                const { r: r1, g: g1, b: b1 } = hexToRGB(i["hex"]);
+                const { r: r2, g: g2, b: b2 } = hexToRGB(j["hex"]);
+                const t = contrastRatio(r1, g1, b1, r2, g2, b2);
+                const newText = document.createElement("p");
+                newText.innerHTML = t;
+
+                testCard.append(testCol, newText);
+                test.appendChild(testCard);
+            }
+        }
     }
 </script>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        padding: 10em;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1em;
+        font-family: "Nunito", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 400;
+        font-style: normal;
+        font-size: 20px;
+    }
+
+    .colour-card {
+        width: auto;
+        min-width: 30em;
+        border: 1px solid black;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 3fr 2fr auto;
+        grid-template-areas:
+            "colour colour"
+            "info space"
+            "description description"
+            "test test";
+    }
+
+    .info {
+        grid-area: info;
+        padding: 1em;
+    }
+
+    .test {
+        grid-area: test;
+        display: flex;
+    }
+
+    .colour-space {
+        grid-area: space;
+        padding: 1em;
+    }
+
+    .description {
+        grid-area: description;
+        padding: 1em;
+    }
+
+    .colour {
+        grid-area: colour;
+    }
+
+    .testCol {
+        margin: .5em;
+        min-width: 20px;
+        min-height: 20px;
+        border: 1px solid black;
+    }
+
+    .test-card {
+        border: 1px solid black;
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        padding-right: 1em;
+    }
+</style>
 
 </html>
